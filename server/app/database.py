@@ -1,4 +1,4 @@
-# Our database of Elden Ring bosses
+# Banco de dados para a API
 # Data gathered from Fextralife wiki
 BOSS_DATABASE = {
     "Godrick the Grafted": {
