@@ -1,3 +1,5 @@
+import random
+import uuid
 from fastapi import FastAPI, HTTPException
 from typing import List
 
@@ -7,9 +9,15 @@ from .models import Boss, GuessFeedback, FeedbackStatus
 # Inicialização do FastAPI
 app = FastAPI()
 
-# Valor fixo, alterar
-BOSS_DO_DIA_NOME = "Malenia"
-BOSS_DO_DIA_DADOS = Boss(**BOSS_DATABASE[BOSS_DO_DIA_NOME])
+ACTIVE_GAMES: Dict[str, Boss] = {}
+
+def get_new_random_boss() -> Boss:
+    all_boss_names = list(BOSS_DATABASE.keys())
+    random_boss_name = random.choice(all_boss_names)
+    
+    print(f"--- Novo jogo criado. Resposta: {random_boss_name} ---")
+    
+    return Boss(**BOSS_DATABASE[random_boss_name])
 
 @app.get("/")
 def read_root():
@@ -27,11 +35,27 @@ def get_boss_details(boss_name: str):
         raise HTTPException(status_code=404, detail="Boss não encontrado.")
     return BOSS_DATABASE[boss_name]
     
+@app.post("/app/game/start")
+def start_new_game():
+    game_id = str(uuid.uuid4())
+    
+    correct_boss = get_new_random_boss()
+    
+    ACTIVE_GAMES[game_id] = correct_boss
+    
+    return {"game_id": game_id}
+
 @app.post("/api/guess/{guess_name}", response_model=GuessFeedback)
-def process_guess(guess_name: str):
+def process_guess(game_id: str, guess_name: str):
     # Endpoint principal, o cliente envia o nome e o servidor compara com o BOSS_DO_DIA
+    
+    correct_boss_data = ACTIVE_GAMES.get(game_id)
+    
+    if not correct_boss_data:
+        raise HTTPException(status_code=404, detail="Sessão de jogo não encontrada. Inicie um novo jogo.")
+    
     if guess_name not in BOSS_DATABASE:
-        raise HTTPException(status_code=404, detail="Boss não encontrado.")
+        raise HTTPException(status_code=404, detail="Boss (palpite) não encontrado")
     
     guess_data = Boss(**BOSS_DATABASE[guess_name])
     feedback = {}
