@@ -409,4 +409,16 @@ BOSS_DATABASE = {
         "runes": 150000,
         "imagem_url": "https://eldenring.wiki.fextralife.com/file/Elden-Ring/sir_gideon_ofnir_the_all-knowing_boss_elden_ring_wiki_guide_200px.jpg"
     },
+    "Scadutree Avatar": {
+        "nome": "Scadutree Avatar",
+        "regiao": "Scadu Altus",
+        "fase": 3,
+        "tipo": "Legend",
+        "raca": "Avatar",
+        "localizacao_especifica": "Scadutree Base",
+        "drop_principal": "Remembrance of the Shadow Sunflower",
+        "obrigatorio": False,
+        "runes": 260000,
+        "imagem_url": "https://eldenring.wiki.fextralife.com/file/Elden-Ring/scadutree_avatar_bosses_elden_ring_wiki_guide_200px.jpg"
+    },
 }
