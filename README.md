@@ -1,134 +1,205 @@
-# Elden Rindle API
+# Eldendle API - Miniprojeto Fatec
 
-**Elden Rindle API — Servidor (backend)**  
-Repositório do servidor backend do projeto *Elden Rindle* — um jogo no estilo *Wordle* focado no universo de **Elden Ring**.  
-Projeto do Terceiro Mini Projeto da disciplina de Programação de Scripts (Fatec Rio Claro). O servidor foi implementado em **Python** com **FastAPI** e expõe endpoints prontos para consumo por um frontend.
+**Eldendle** é um miniprojeto desenvolvido para a disciplina de Programação de Scripts da Fatec Rio Claro. O tema do trabalho é *Consumo de APIs* e o resultado é um jogo no estilo "Wordle" focado no universo de **Elden Ring**: um servidor com uma API que fornece dados de bosses e um cliente em console que consome essa API para permitir palpites e partidas locais.
 
 ---
 
-## 🚀 Como rodar o servidor (local)
+## ✨ Visão Geral
 
-1. **Clone o repositório**
-```bash
-git clone https://github.com/nathanscremin/elden-rindle_api.git
-cd elden-rindle_api
+O repositório está organizado em duas partes principais:
+
+* `server/` — API (backend) construída com **FastAPI** em Python.
+* `client/` — Cliente de terminal (frontend) em Python que consome a API usando a biblioteca `requests`.
+
+O objetivo é oferecer um microprojeto completo para demonstrar consumo de APIs, sessões de jogo, e comunicação cliente-servidor em um contexto didático.
+
+---
+
+## ✨ Funcionalidades
+
+### Backend (Servidor)
+
+* Servidor FastAPI com um banco de dados (simples) contendo dezenas de bosses do universo Elden Ring.
+* Endpoints para iniciar sessões de jogo, listar bosses, consultar detalhes e registrar palpites.
+* Randomização do boss alvo a cada novo jogo.
+* Lógica que retorna dicas por campo (por exemplo: `correct`, `partial`, `higher`, `lower`).
+* Documentação automática via Swagger (disponível em `/docs` quando o servidor estiver rodando).
+
+### Frontend (Cliente)
+
+* Jogo executável no terminal.
+* Verifica se o servidor está online antes de iniciar.
+* Menu interativo com opções para: jogar, listar bosses e sair.
+* Envia palpites ao servidor e exibe as dicas formatadas para o usuário.
+* Detecta condição de vitória quando todos os campos estão corretos.
+
+---
+
+## 💻 Tecnologias
+
+* **Servidor (Backend):** Python 3.x, FastAPI, Uvicorn
+* **Cliente (Frontend):** Python 3.x, requests
+
+---
+
+## 📁 Estrutura do Projeto
+
+```
+eldendle_api/
+├── .venv/                      (Ambiente virtual)
+├── client/
+│   ├── procura_boss.py
+│   └── requirements.txt
+├── server/
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── main.py
+│   │   ├── database.py
+│   │   └── models.py
+│   └── requirements.txt
+├── .gitignore
+├── iniciar_servidor.bat        (Script para iniciar em rede)
+├── iniciar_servidor_local.bat  (Script para iniciar em localhost)
+└── README.md
 ```
 
-2. **Crie e ative um ambiente virtual (recomendado)**
+---
+
+## 🚀 Como Rodar (Guia Rápido)
+
+### Pré-requisitos
+
+* Python 3.10+
+* Git
+
+### 1) Clonar o repositório
+
 ```bash
-# Cria o ambiente virtual na pasta .venv
+git clone https://github.com/nathanscremin/eldendle_api.git
+cd eldendle_api
+```
+
+### 2) Criar e ativar ambiente virtual
+
+**No Windows (PowerShell/CMD):**
+
+```bash
 python -m venv .venv
-
-# Ativa o ambiente (Windows)
 .\.venv\Scripts\activate
-
-# Ativa o ambiente (Linux / macOS)
-# source .venv/bin/activate
 ```
 
-3. **Instale as dependências**
+(Em Linux/macOS adapte o comando de ativação do venv.)
+
+### 3) Instalar dependências
+
+```bash
+# Backend
+pip install -r server/requirements.txt
+
+# Frontend
+pip install -r client/requirements.txt
+```
+
+### 4) Iniciar servidor
+
+Existem scripts preparados ou você pode iniciar manualmente:
+
+**Opção (arquivo):**
+
+* Dar dois cliques em `iniciar_servidor_local.bat` para rodar em localhost.
+* Dar dois cliques em `iniciar_servidor.bat` para rodar em rede (lembre de liberar no firewall).
+
+**Opção (manual):**
+
 ```bash
 cd server
-pip install -r requirements.txt
-```
-
-4. **Inicie o servidor**
-```bash
 uvicorn app.main:app --reload
+# Para aceitar conexões externas:
+# uvicorn app.main:app --reload --host 0.0.0.0
 ```
-- `app.main` refere-se ao arquivo `main.py` dentro da pasta `app`.  
-- `:app` é o objeto `app = FastAPI()` no arquivo.  
-- `--reload` reinicia o servidor automaticamente a cada alteração no código.
 
-> O servidor ficará disponível em: `http://127.0.0.1:8000`
+> O servidor deve ficar rodando em seu próprio terminal.
+
+### 5) Rodar o cliente
+
+1. Abra um novo terminal (mantendo o servidor rodando).
+2. Ative o mesmo ambiente virtual:
+
+```bash
+cd eldendle_api
+.\.venv\Scripts\activate
+```
+
+3. Vá para a pasta do cliente e execute:
+
+```bash
+cd client
+python procura_boss.py
+```
+
+Siga as instruções no terminal para jogar.
 
 ---
 
-## 📚 Documentação interativa (Swagger)
-Com o servidor em execução, acesse a documentação automática do FastAPI:
-- `http://127.0.0.1:8000/docs`
+## 📚 Endpoints (Referência)
 
-Lá você pode testar todos os endpoints via interface web.
+Base URL (padrão durante desenvolvimento): `http://127.0.0.1:8000`
 
----
+* **POST** `/api/game/start` — Cria uma nova sessão de jogo. Retorna um `game_id` único.
 
-## 🗺️ Endpoints principais
+  ```json
+  { "game_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890" }
+  ```
 
-### 🎮 Jogo (sessão)
-#### `POST /api/game/start`
-Inicia uma nova sessão de jogo. O servidor sorteia um boss aleatório e retorna o `game_id`.
+* **GET** `/api/bosses/names` — Retorna a lista de nomes dos bosses (array de strings).
 
-**Resposta (exemplo)**:
-```json
-{
-  "game_id": "seu-uuid-unico-aqui"
-}
-```
+  ```json
+  [ "Godrick the Grafted", "Rennala, Queen of the Full Moon", "..." ]
+  ```
 
-#### `POST /api/guess/{game_id}/{guess_name}`
-Submete um palpite (`guess_name`) para uma sessão específica (`game_id`). Retorna o feedback comparando atributos do palpite com a resposta correta.
+* **GET** `/api/boss/details/{boss_name}` — Retorna os dados completos de um boss.
 
-**Resposta (exemplo)**:
-```json
-{
-  "nome": "incorrect",
-  "regiao": "partial",
-  "fase": "higher",
-  "tipo": "correct",
-  "raca": "incorrect",
-  "localizacao_especifica": "incorrect",
-  "drop_principal": "incorrect",
-  "obrigatorio": "correct",
-  "runes": "lower"
-}
-```
+  ```json
+  {
+    "nome": "Godrick the Grafted",
+    "regiao": "Limgrave",
+    "fase": 2,
+    "tipo": "Demigod",
+    "raca": "Humanoid",
+    "localizacao_especifica": "Stormveil Castle",
+    "drop_principal": "Godrick's Great Rune",
+    "obrigatorio": true,
+    "runes": 20000,
+    "imagem_url": "https://..."
+  }
+  ```
 
-**Legenda do feedback**
-- `correct`: acerto exato  
-- `incorrect`: erro total  
-- `partial`: parcialmente correto (ex.: acertou a região, mas errou a localização específica)  
-- `higher`: o valor correto é maior que o palpite (usado para `fase` e `runes`)  
-- `lower`: o valor correto é menor que o palpite
+* **POST** `/api/guess/{game_id}/{guess_name}` — Envia um palpite para a sessão indicada. Retorna um objeto com dicas por campo:
 
----
-
-## 📊 Dados (Bosses)
-
-### `GET /api/bosses/names`
-Retorna uma lista simples com os nomes (strings) de todos os bosses disponíveis. Ideal para popular um autocomplete ou menu de seleção no cliente.
-
-**Resposta (exemplo)**:
-```json
-[
-  "Godrick the Grafted",
-  "Rennala, Queen of the Full Moon",
-  "Starscourge Radahn",
-  "..."
-]
-```
-
-### `GET /api/boss/details/{boss_name}`
-Retorna o objeto completo com todos os dados do boss solicitado. O cliente pode usar este endpoint após cada palpite para exibir imagem e detalhes do boss.
-
-**Resposta (exemplo)**:
-```json
-{
-  "nome": "Godrick the Grafted",
-  "regiao": "Limgrave",
-  "fase": 2,
-  "tipo": "Demigod",
-  "raca": "Humanoid",
-  "localizacao_especifica": "Stormveil Castle",
-  "drop_principal": "Godrick's Great Rune",
-  "obrigatorio": true,
-  "runes": 20000,
-  "imagem_url": "https://eldenring.wiki.fextralife.com/..."
-}
-```
+  ```json
+  {
+    "nome": "incorrect",
+    "regiao": "partial",
+    "fase": "higher",
+    "tipo": "correct",
+    "raca": "incorrect",
+    "localizacao_especifica": "incorrect",
+    "drop_principal": "incorrect",
+    "obrigatorio": "correct",
+    "runes": "lower"
+  }
+  ```
 
 ---
 
-## ✅ Observações práticas
-- Garanta que o `requirements.txt` contenha `fastapi`, `uvicorn`, e quaisquer bibliotecas auxiliares usadas pelo projeto.  
-- Para produção, remova `--reload` e use um gerenciador de processos (systemd, gunicorn/uvicorn workers, containerização, etc.).  
-- Se for expor imagens externas, valide e normalize as `imagem_url` para evitar hotlinking ou problemas de CORS no frontend.
+## 💡 Sugestões / Próximos Passos
+
+* Adicionar um frontend web (React/Vue) que consuma a API e ofereça interface gráfica.
+* Persistência real (SQLite/Postgres) para gravar estatísticas de jogadores e histórico de jogos.
+* Autenticação de usuários para sessões persistentes.
+
+---
+
+## 🧾 Licença & Créditos
+
+Projeto desenvolvido como entrega acadêmica para a disciplina de Programação de Scripts da Fatec Rio Claro.
